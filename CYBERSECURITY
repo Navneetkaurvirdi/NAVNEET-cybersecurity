@@ -1,0 +1,102 @@
+import cv2
+import os
+import tkinter as tk
+from tkinter import filedialog
+
+# Declare password as a global variable
+password = ""
+
+def encrypt_message():
+    global password
+    img = cv2.imread(img_path.get())
+    msg = secret_message.get()
+    password = entry_password.get()
+
+    d = {}
+    c = {}
+
+    for i in range(255):
+        d[chr(i)] = i
+        c[i] = chr(i)
+
+    m = 0
+    n = 0
+    z = 0
+
+    for i in range(len(msg)):
+        img[n, m, z] = d[msg[i]]
+        n = n + 1
+        m = m + 1
+        z = (z + 1) % 3
+
+    cv2.imwrite("Encryptedmsg.jpg", img)
+    os.system("start Encryptedmsg.jpg")
+
+def decrypt_message():
+    img = cv2.imread("Encryptedmsg.jpg")
+    message = ""
+
+    n = 0
+    m = 0
+    z = 0
+
+    pas = entry_passcode.get()
+
+    if password == pas:
+        c = {}  # Define the dictionary inside the function
+        for i in range(255):
+            c[i] = chr(i)
+
+        for i in range(len(secret_message.get())):
+            message = message + c[img[n, m, z]]
+            n = n + 1
+            m = m + 1
+            z = (z + 1) % 3
+        label_decryption.config(text="Decrypted message: " + message)
+    else:
+        label_decryption.config(text="Invalid passcode")
+
+# Create the main window
+window = tk.Tk()
+window.title("Image Encryption/Decryption")
+window.geometry("1500x1700")
+
+# Widgets
+label_img_path = tk.Label(window, text="Enter image path:", font=("Helvetica", 16), padx=10, pady=20, fg="NavajoWhite4", bg="azure", relief="raised", borderwidth=4)
+label_img_path.pack()
+
+img_path = tk.Entry(window)
+img_path.pack()
+
+button_browse = tk.Button(window, text="Browse", command=lambda: img_path.insert(0, filedialog.askopenfilename()), font=("Helvetica", 16), padx=20, pady=30, fg="NavajoWhite4", bg="cornsilk", relief="raised", borderwidth=4)
+button_browse.pack()
+
+label_message = tk.Label(window, text="Enter secret message:", font=("Helvetica", 16), padx=10, pady=20, fg="NavajoWhite4", bg="azure", relief="raised", borderwidth=4)
+label_message.pack()
+
+secret_message = tk.Entry(window, font=("Helvetica", 16))
+secret_message.pack()
+
+label_password = tk.Label(window, text="Enter password:", font=("Helvetica", 16), padx=10, pady=20, fg="NavajoWhite4", bg="azure", relief="raised", borderwidth=4)
+label_password.pack()
+
+entry_password = tk.Entry(window, show="*", font=("Helvetica", 16))
+entry_password.pack()
+
+button_encrypt = tk.Button(window, text="Encrypt", command=encrypt_message, font=("Helvetica", 16), padx=10, pady=20, fg="NavajoWhite4", bg="cornsilk", relief="raised", borderwidth=4)
+button_encrypt.pack()
+
+label_passcode = tk.Label(window, text="Enter passcode for Decryption:", font=("Helvetica", 16), padx=10, pady=20, fg="NavajoWhite4", bg="azure", relief="raised", borderwidth=4)
+label_passcode.pack()
+
+entry_passcode = tk.Entry(window, show="*", font=("Helvetica", 16))
+entry_passcode.pack()
+
+button_decrypt = tk.Button(window, text="Decrypt", command=decrypt_message, font=("Helvetica", 16), padx=10, pady=20, fg="NavajoWhite4",bg="cornsilk", relief="raised", borderwidth=4)
+button_decrypt.pack()
+
+label_decryption = tk.Label(window, text="", font=("Helvetica", 16), padx=20, pady=30, fg="NavajoWhite4", bg="azure", relief="raised", borderwidth=4)
+label_decryption.pack()
+
+# Run the GUI
+window.mainloop()
